@@ -106,14 +106,14 @@ public class Lab1 extends JFrame implements ActionListener {
 	/**
 	 * Lab 1 Code
 	 * Author: John Henry Mejia
-	 * Sources: Previous lecture materials
+	 * Sources: Previous lecture/lab materials, help on methods from David Anjanku, Taylor Griffin, other class mates, CS help desk
 	 * 
 	 */
 	
 	
 	/**
 	 * Encode
-	 * 
+	 *  Encodes instructions from assembly into Binary and Hex and sets each text value to them
 	 */
 	void encode() {
 	    this.binaryInstruction.setText("");
@@ -170,7 +170,7 @@ public class Lab1 extends JFrame implements ActionListener {
 	  */ 
 	  int encodeRegister(String register) {
 	    int registerCode = 0;
-	    char registerNum = '0';
+	    char registerNumChar = '0';
 	    if (register.charAt(0) == '-') {
 	      if (register.length() != 5 || register.charAt(1) != '(' || register.charAt(4) != ')' || 
 	        register.charAt(2) != 'R') {
@@ -178,7 +178,7 @@ public class Lab1 extends JFrame implements ActionListener {
 	        return 0;
 	      } 
 	      registerCode = 32;
-	      registerNum = register.charAt(3);
+	      registerNumChar = register.charAt(3);
 	    } else if (register.endsWith("+")) {
 	      if (register.length() != 5 || register.charAt(0) != '(' || register.charAt(3) != ')' || 
 	        register.charAt(1) != 'R') {
@@ -186,51 +186,54 @@ public class Lab1 extends JFrame implements ActionListener {
 	        return 0;
 	      } 
 	      registerCode = 16;
-	      registerNum = register.charAt(2);
+	      registerNumChar = register.charAt(2);
 	    } else if (register.charAt(0) == '(') {
 	      if (register.length() != 4 || register.charAt(3) != ')' || register.charAt(1) != 'R') {
 	        this.errorLabel.setText("Illegal register specs");
 	        return 0;
 	      } 
 	      registerCode = 8;
-	      registerNum = register.charAt(2);
+	      registerNumChar = register.charAt(2);
 	    } else if (register.charAt(0) == 'R') {
 	      if (register.length() != 2) {
 	        this.errorLabel.setText("Illegal register specs");
 	        return 0;
 	      } 
-	      registerNum = register.charAt(1);
+	      registerNumChar = register.charAt(1);
 	    } else {
 	      this.errorLabel.setText("Illegal register specs");
 	      return 0;
 	    } 
-	    if (registerNum < '0' || registerNum > '7') {
+	    if (registerNumChar < '0' || registerNumChar > '7') {
 	      this.errorLabel.setText("Illegal register number");
 	      return 0;
 	    } 
-	    return registerCode + Integer.parseInt(registerNum);
+	    return registerCode + Integer.parseInt(registerNumChar);
 	  }
 	 /**
 	  * DecodeBin
+	  *
+	  * turns binary into hex, makes sure its a valid integer, then sends to decode()
 	  */
 	  void decodeBin() {
 	    int binaryNum;
+		//Resets all texts
 	    this.assemblerInstruction.setText("");
 	    this.hexInstruction.setText("");
 	    this.errorLabel.setText("");
 	    String s = this.binaryInstruction.getText().trim();
 	    if (s.length() != 16) {
-	      this.errorLabel.setText("Binary number must be 16 digits!");
+	      this.errorLabel.setText("Binary should be exactly 16 digits!");
 	      return;
 	    } 
 	    try {
 	      binaryNum = Integer.parseInt(s, 2);
 	    } catch (Exception e) {
-	      this.errorLabel.setText("Illegal binary number");
+	      this.errorLabel.setText("Cannot parse binary num");
 	      return;
 	    } 
 	    this.hexInstruction.setText(shortToHex((short)binaryNum));
-		//This will decode the binary number
+		//This will decode the (now integered) binary number and parse it. 
 	    decode(binaryNum);
 	  }
 	  /**
@@ -242,47 +245,59 @@ public class Lab1 extends JFrame implements ActionListener {
 	    this.binaryInstruction.setText("");
 	    String s = this.hexInstruction.getText().trim();
 	    if (s.length() != 4) {
-	      this.errorLabel.setText("Hex number must be 4 digits");
+	      this.errorLabel.setText("Hex should be exactly 4 digits!");
 	      return;
 	    } 
 	    try {
 	      binary = Integer.parseInt(s, 16);
 	    } catch (Exception e) {
-	      this.errorLabel.setText("Illegal hex number");
+	      this.errorLabel.setText("Cannot parse hex num");
 	      return;
 	    } 
 	    this.binaryInstruction.setText(shortToBinary((short)binary));
 	    decode(binary);
 	  }
-	  
+	  /**
+	   * Decodes binary to assembly 
+	   * @param binary given a binary number as an integer
+	   */
 	  void decode(int binary) {
 	    if ((binary & 0xFFFF0000) != 0) {
 	      this.errorLabel.setText("Illegal instruction");
 	      return;
 	    } 
-	    String assem = "";
-	    if ((binary & 0xF000) == 24576) {
-	      assem = "ADD ";
-	    } else if ((binary & 0xF000) == 57344) {
-	      assem = "SUB ";
-	    } else if ((binary & 0xF000) == 16384) {
-	      assem = "MOV ";
-	    } else if ((binary & 0xF000) == 49152) {
-	      assem = "MOVB ";
-	    } else if ((binary & 0xF000) == 0) {
-	      assem = "CMP ";
-	    } else if ((binary & 0xF000) == 32768) {
-	      assem = "CMPB ";
-	    } else {
-	      this.errorLabel.setText("Illegal instruction");
-	      return;
-	    } 
+	    String assemblyInstruction = "";
+		//Switch statement handling all decoding!!!
+		switch(binary & 0xF000) {
+			case 24576:
+				assemblyInstruction = "ADD ";
+				break;
+			case 57344:
+				assemblyInstruction = "SUB ";
+				break;
+			case 16384:
+				assemblyInstruction = "MOV ";
+				break;
+			case 49152:
+				assemblyInstruction = "MOVB ";
+				break;
+			case 0:
+				assemblyInstruction = "CMP ";
+				break;
+			case 32768:
+				assemblyInstruction = "CMPB ";
+				break;
+			default:
+				this.errorLabel.setText("Illegal instruction");
+				break;
+		}
+	
 	    int source = binary >> 6 & 0x3F;
-	    assem = String.valueOf(assem) + registerEncode(source);
+	    assemblyInstruction = String.valueOf(assemblyInstruction) + registerEncode(source);
 	    int destination = binary & 0x3F;
-	    assem = String.valueOf(assem) + "," + registerEncode(destination);
+	    assemblyInstruction = String.valueOf(assemblyInstruction) + "," + registerEncode(destination);
 	    if (this.errorLabel.getText().equals(""))
-	      this.assemblerInstruction.setText(assem); 
+	      this.assemblerInstruction.setText(assemblyInstruction); 
 	  }
 	  
 	  String registerEncode(int register) {
