@@ -119,13 +119,13 @@ public class Lab1 extends JFrame implements ActionListener {
 	    this.binaryInstruction.setText("");
 	    this.hexInstruction.setText("");
 	    this.errorLabel.setText("");
-	    String assem = this.assemblerInstruction.getText().trim().toUpperCase();
-	    StringTokenizer tok = new StringTokenizer(assem);
-	    if (tok.countTokens() != 2) {
+	    String assem = this.assemblerInstruction.getText().trim().toUpperCase(); //In case it is upper case
+	    StringTokenizer tokenize = new StringTokenizer(assem);
+	    if (tokenize.countTokens() != 2) {
 	      this.errorLabel.setText("Illegal format for assembly instruction");
 	      return;
 	    } 
-	    String op = tok.nextToken();
+	    String op = tokenize.nextToken();
 	    int binary = 0;
 	    if (op.equals("ADD")) {
 	      binary = 24576;
@@ -143,30 +143,38 @@ public class Lab1 extends JFrame implements ActionListener {
 	      this.errorLabel.setText("Illegal operation for assembly instruction");
 	      return;
 	    } 
-	    String operands = tok.nextToken();
-	    tok = new StringTokenizer(operands, ",", true);
-	    if (tok.countTokens() != 3 || operands.endsWith(",")) {
+	    String operands = tokenize.nextToken();
+	    tokenize = new StringTokenizer(operands, ",", true);
+	    if (tokenize.countTokens() != 3 || operands.endsWith(",")) {
 	      this.errorLabel.setText("Illegal format for assembly instruction");
 	      return;
 	    } 
-	    String source = tok.nextToken();
-	    binary |= encodeRegister(source) << 6;
-	    tok.nextToken();
-	    String destination = tok.nextToken();
-	    binary |= encodeRegister(destination);
+		
+	    String source = tokenize.nextToken();
+		//Calling the method for 2nd part 
+	    binary |= encodeRegister(source) << 6; //Shifts the results 6 bits
+	    tokenize.nextToken();
+	    String destination = tokenize.nextToken();
+		//Calling method for 3rd part
+	    binary |= encodeRegister(destination); 
 	    if (this.errorLabel.getText().equals("")) {
 	      this.binaryInstruction.setText(shortToBinary((short)binary));
 	      this.hexInstruction.setText(shortToHex((short)binary));
 	    } 
 	  }
-	  
+	 /**
+	  * 
+	  * @param register
+	  * Options: (Rn), -(Rn), (Rn)+
+	  * @return
+	  */ 
 	  int encodeRegister(String register) {
 	    int registerCode = 0;
 	    char registerNum = '0';
 	    if (register.charAt(0) == '-') {
 	      if (register.length() != 5 || register.charAt(1) != '(' || register.charAt(4) != ')' || 
 	        register.charAt(2) != 'R') {
-	        this.errorLabel.setText("Illegal register specification");
+	        this.errorLabel.setText("Illegal register specs");
 	        return 0;
 	      } 
 	      registerCode = 32;
@@ -174,26 +182,26 @@ public class Lab1 extends JFrame implements ActionListener {
 	    } else if (register.endsWith("+")) {
 	      if (register.length() != 5 || register.charAt(0) != '(' || register.charAt(3) != ')' || 
 	        register.charAt(1) != 'R') {
-	        this.errorLabel.setText("Illegal register specification");
+	        this.errorLabel.setText("Illegal register specs");
 	        return 0;
 	      } 
 	      registerCode = 16;
 	      registerNum = register.charAt(2);
 	    } else if (register.charAt(0) == '(') {
 	      if (register.length() != 4 || register.charAt(3) != ')' || register.charAt(1) != 'R') {
-	        this.errorLabel.setText("Illegal register specification");
+	        this.errorLabel.setText("Illegal register specs");
 	        return 0;
 	      } 
 	      registerCode = 8;
 	      registerNum = register.charAt(2);
 	    } else if (register.charAt(0) == 'R') {
 	      if (register.length() != 2) {
-	        this.errorLabel.setText("Illegal register specification");
+	        this.errorLabel.setText("Illegal register specs");
 	        return 0;
 	      } 
 	      registerNum = register.charAt(1);
 	    } else {
-	      this.errorLabel.setText("Illegal register specification");
+	      this.errorLabel.setText("Illegal register specs");
 	      return 0;
 	    } 
 	    if (registerNum < '0' || registerNum > '7') {
@@ -206,23 +214,24 @@ public class Lab1 extends JFrame implements ActionListener {
 	  * DecodeBin
 	  */
 	  void decodeBin() {
-	    int binary;
+	    int binaryNum;
 	    this.assemblerInstruction.setText("");
 	    this.hexInstruction.setText("");
 	    this.errorLabel.setText("");
 	    String s = this.binaryInstruction.getText().trim();
 	    if (s.length() != 16) {
-	      this.errorLabel.setText("Binary number must be 16 bits");
+	      this.errorLabel.setText("Binary number must be 16 digits!");
 	      return;
 	    } 
 	    try {
-	      binary = Integer.parseInt(s, 2);
+	      binaryNum = Integer.parseInt(s, 2);
 	    } catch (Exception e) {
 	      this.errorLabel.setText("Illegal binary number");
 	      return;
 	    } 
-	    this.hexInstruction.setText(shortToHex((short)binary));
-	    decode(binary);
+	    this.hexInstruction.setText(shortToHex((short)binaryNum));
+		//This will decode the binary number
+	    decode(binaryNum);
 	  }
 	  /**
 	   * Decode Hex
