@@ -106,7 +106,7 @@ public class Lab1 extends JFrame implements ActionListener {
 	/**
 	 * Lab 1 Code
 	 * Author: John Henry Mejia
-	 * Sources: Previous lecture/lab materials, help on methods from David Anjanku, Taylor Griffin, other class mates, CS help desk
+	 * Sources: Previous lecture/lab materials, help on methods from David Anjanku, Taylor Griffin, other classmates, CS help desk
 	 * 
 	 */
 	
@@ -299,7 +299,11 @@ public class Lab1 extends JFrame implements ActionListener {
 	    if (this.errorLabel.getText().equals(""))
 	      this.assemblerInstruction.setText(assemblyInstruction); 
 	  }
-	  
+	  /**
+	   * 
+	   * @param register Options: (Rn), -(Rn), (Rn)+
+	   * @return returns the value to be encoded
+	   */
 	  String registerEncode(int register) {
 	    String code = "";
 	    code = Integer.toString(register & 0x7);
